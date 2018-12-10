@@ -1,0 +1,48 @@
+---
+title: "flexdashborad 615"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+pacman::p_load("arm","dplyr","tidyr","ggplot2","lme4","knitr","pander","coefplot")
+#Data import
+initial <- read.csv("airbnblondon.csv")
+LondonAirbnb <- initial[,c(-2,-5,-6,-8,-13,-15,-16,-19)]
+#reviews = 0 is meaningless
+LondonAirbnb <- filter(LondonAirbnb,reviews>0)
+#rating cannot be 0
+LondonAirbnb <- filter(LondonAirbnb,overall_satisfaction>0)
+LondonAirbnb$room_id <- as.character(LondonAirbnb$room_id)
+LondonAirbnb$host_id <- as.character(LondonAirbnb$host_id)
+LondonAirbnb$overall_satisfaction <- as.numeric(LondonAirbnb$overall_satisfaction)
+```
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Chart A: Price and room type
+
+```{r}
+ggplot(data=LondonAirbnb,aes(x=price,fill=room_type))+geom_histogram(binwidth = 100)+ggtitle("Price and room type")+xlim(0,750)
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Chart B: Ratings and reviews
+
+```{r}
+
+ggplot(data = LondonAirbnb,aes(x=overall_satisfaction,y=reviews))+geom_jitter()+scale_x_discrete(name ="Ratings",limits=c("1","2","3","4","5"))+ggtitle("Ratings and Reviews")+labs(y="Reviews")
+```
+
+### Chart C: Ratings and Prices
+
+```{r}
+ggplot(data = LondonAirbnb,aes(x=overall_satisfaction,y=price))+geom_jitter()+scale_x_discrete(name="Ratings",limits=c("1","2","3","4","5"))+ggtitle("Ratings and Prices")+labs(y="Price")
+```
+
